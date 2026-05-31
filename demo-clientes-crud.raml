@@ -1,0 +1,341 @@
+#%RAML 1.0
+title: Demo Clientes CRUD
+version: v1
+protocols: [ HTTP, HTTPS ]
+
+documentation:
+  - title: Visão Geral
+    content: |
+      # Demo Clientes CRUD - Documentação Técnica
+
+      API desenvolvida como Prova de Conceito (POC) para gerenciar operações de CRUD (Create, Read, Update, Delete) do ecossistema de clientes, integrada a um banco de dados PostgreSQL via MuleSoft.
+
+      ## 🔒 Segurança (Client ID Enforcement)
+      Todas as requisições exigem autenticação obrigatória via headers HTTP:
+      * `client_id`: Identificador exclusivo da aplicação consumidora.
+      * `client_secret`: Chave secreta correspondente.
+
+      ## 📂 Recursos e Endpoints
+      Operações estruturadas seguindo o padrão REST:
+      * **GET /clientes**: Listagem de clientes com paginação e parâmetros opcionais para buscas personalizadas por chave única (`cpf_cnpj` ou `email`).
+      * **POST /clientes**: Criação de novos clientes.
+      * **PUT /clientes/{id}**: Atualização de dados de um cliente específico via URI e Body.
+      * **DELETE /clientes/{id}**: Remoção ou inativação de um cliente específico via URI.
+
+traits:
+  client-id-required:
+    headers:
+      client_id:
+        type: string
+      client_secret:
+        type: string
+
+types:
+  ErrorMessageDefinition:
+    type: object
+    properties: 
+      message?: string | nil
+      processor?: string | nil
+      errors?: StackErrorDefinition[]
+      
+  StackErrorDefinition:
+    type: object
+    properties: 
+      code: string | nil
+      message: string | nil
+
+  ClienteRequest:
+    type: |
+      {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "nome": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 150
+          },
+          "telefone": {
+            "type": "string",
+            "maxLength": 20
+          },
+          "cpf_cnpj": {
+            "type": "string",
+            "maxLength": 14
+          },
+          "data_nascimento": {
+            "type": "string",
+            "format": "date"
+          },
+          "ativo": {
+            "type": "boolean"
+          }
+        },
+        "required": ["nome", "email"]
+      }
+  
+  ClienteResponse:
+    type: |
+      {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "title": "ClienteListSchema",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "integer" },
+            "nome": { "type": "string" },
+            "email": { "type": "string", "format": "email" },
+            "telefone": { "type": ["string", "null"] },
+            "cpf_cnpj": { "type": ["string", "null"] },
+            "data_nascimento": { "type": ["string", "null"] },
+            "ativo": { "type": "boolean" }
+          },
+          "required": ["id", "nome", "email", "ativo"]
+        }
+      }
+
+  ClienteActionResponse:
+    type: |
+      {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "title": "ClienteActionSchema",
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "mensagem": { "type": "string" },
+          "ativo": { "type": "boolean" }
+        },
+        "required": ["mensagem"]
+      }
+
+resourceTypes: 
+  collection:
+    description: Operações de listagem e criação para <<resourcePathName>> na Demo Clientes CRUD.
+    get?:
+      description: Get a list of <<resourcePathName>>.
+      responses:
+        200:
+          body:
+            application/json:
+              type: <<typeCollection>>
+              example: <<exampleCollection>>
+        400: &400-error
+          body:
+            application/json:
+              type: ErrorMessageDefinition
+              example: |
+                {
+                  "message": "invalid request",
+                  "processor": "API Kit Validation",
+                  "errors": [
+                    {
+                      "code": "ERR-5432",
+                      "message": "First name cannot have fancy characters"
+                    },
+                    {
+                      "code": "ERR-10332143",
+                      "message": "Password cannot be blank"
+                    }
+                  ]
+                }
+        401: &401-error
+          body:
+            application/json:
+              type: ErrorMessageDefinition
+              example: |
+                {
+                  "message": "Unauthorized"
+                }
+        403: &403-error
+          body:
+            application/json:
+              type: ErrorMessageDefinition
+              example: |
+                {
+                  "message": "Forbidden"
+                }
+        404: &404-error
+          body:
+            application/json:
+              type: ErrorMessageDefinition
+              example: |
+                {
+                  "message": "Resource not found"
+                }
+        500: &500-error
+          body:
+            application/json:
+              type: ErrorMessageDefinition
+              example: |
+                {
+                  "message": "Endpoint request timed out",
+                  "processor": "api"
+                }
+    post?:
+      description: Create a new <<resourcePathName|!singularize>> record.
+      body:
+        application/json:
+          type: <<postRequest>>
+          example: <<examplePostRequestCollection>>
+      responses:
+        200:
+          body:
+            application/json:
+              type: <<PostResponse>>
+              example: <<examplePostResponseCollection>>
+        400: *400-error
+        401: *401-error
+        403: *403-error
+        404: *404-error
+        500: *500-error
+
+  item:
+    description: Operações individuais baseadas em um identificador na Demo Clientes CRUD.
+    put?:
+      description: Update an existing <<resourcePathName|!singularize>> record.
+      body:
+        application/json:
+          type: <<putRequest>>
+          example: <<examplePutRequestCollection>>
+      responses:
+        200:
+          body:
+            application/json:
+              type: <<PutResponse>>
+              example: <<examplePutResponseCollection>>
+        400: *400-error
+        401: *401-error
+        403: *403-error
+        404: *404-error
+        500: *500-error  
+    delete?:
+      description: Delete or inactivate a <<resourcePathName|!singularize>> record.
+      responses:
+        200:
+          body:
+            application/json:
+              type: <<DeleteResponse>>
+              example: <<exampleDeleteResponseCollection>>
+        400: *400-error
+        401: *401-error
+        403: *403-error
+        404: *404-error
+        500: *500-error       
+
+/clientes:
+  is: [ client-id-required ]
+  
+  type:
+    collection:
+      typeCollection: ClienteResponse
+      exampleCollection: |
+        [
+          {
+            "id": 1,
+            "nome": "João Silva",
+            "email": "joao.silva@email.com",
+            "telefone": "11999999999",
+            "cpf_cnpj": "12345678901",
+            "data_nascimento": "1990-05-15",
+            "ativo": true
+          },
+          {
+            "id": 2,
+            "nome": "Maria Souza",
+            "email": "maria.souza@email.com",
+            "telefone": "11988888888",
+            "cpf_cnpj": "98765432100",
+            "data_nascimento": "1985-10-20",
+            "ativo": true
+          }
+        ]
+      postRequest: ClienteRequest
+      examplePostRequestCollection: |
+        {
+          "nome": "João Silva",
+          "email": "joao.silva@email.com",
+          "telefone": "11999999999",
+          "cpf_cnpj": "12345678901",
+          "data_nascimento": "1990-05-15",
+          "ativo": true
+        }
+      PostResponse: ClienteActionResponse
+      examplePostResponseCollection: |
+        {
+          "id": 1,
+          "mensagem": "Cliente criado com sucesso!",
+          "ativo": true
+        }
+
+  get:
+    description: Lista os clientes cadastrados com suporte a filtros e paginação.
+    queryParameters:
+      limit:
+        type: integer
+        required: false
+        default: 10
+        description: Quantidade máxima de registros retornados.
+      offset:
+        type: integer
+        required: false
+        default: 0
+        description: Ponto de partida para a paginação.
+      email:
+        type: string
+        required: false
+        pattern: ^.+@.+\..+$
+        description: Busca personalizada por e-mail (chave única do cliente).
+      cpf_cnpj:
+        type: string
+        required: false
+        maxLength: 14
+        description: Busca personalizada por CPF ou CNPJ (chave única, somente números).
+
+  post:
+    description: Cria um novo registro de cliente.
+
+  /{id}:
+    is: [ client-id-required ]
+    uriParameters:
+      id:
+        type: integer
+        description: ID único do cliente para a operação.
+        
+    type:
+      item:
+        putRequest: ClienteRequest
+        examplePutRequestCollection: |
+          {
+            "nome": "João Silva Alterado",
+            "email": "joao.silva.novo@email.com",
+            "telefone": "11999999999",
+            "cpf_cnpj": "12345678901",
+            "data_nascimento": "1990-05-15",
+            "ativo": true
+          }
+        PutResponse: ClienteActionResponse
+        examplePutResponseCollection: |
+          {
+            "id": 1,
+            "mensagem": "Cliente atualizado com sucesso!",
+            "ativo": true
+          }
+        DeleteResponse: ClienteActionResponse
+        exampleDeleteResponseCollection: |
+          {
+            "mensagem": "Cliente removido/inativado com sucesso!"
+          }
+
+    put:
+      description: Atualiza um registro de cliente existente baseado no ID enviado na URI e os dados enviados no body.
+
+    delete:
+      description: Remove ou inativa um cliente baseado no ID enviado na URI. Não requer corpo (body) na requisição.
