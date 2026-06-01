@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCP — A História do Protocolo que Abriu o Mundo para os AIs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #12121a;
+    --bg3: #1a1a26;
+    --amber: #f5a623;
+    --amber-dim: #a06b10;
+    --blue: #4a9eff;
+    --blue-dim: #1a4a80;
+    --green: #3ecf8e;
+    --green-dim: #0e5535;
+    --text: #e8e6de;
+    --text-dim: #7a7870;
+    --text-mid: #b0ae a6;
+    --border: rgba(255,255,255,0.08);
+    --font-head: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.6;
+  }
+
+  /* ── PROGRESS BAR ── */
+  #progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: var(--amber);
+    z-index: 1000;
+    width: 0%;
+    transition: width 0.1s;
+    box-shadow: 0 0 12px var(--amber);
+  }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #hero::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(74,158,255,0.08) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse 8s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+    50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+  }
+
+  .hero-tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--amber);
+    border: 1px solid var(--amber-dim);
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 2.5rem;
+    display: inline-block;
+    opacity: 0;
+    animation: fade-up 0.8s ease 0.3s forwards;
+  }
+
+  .hero-title {
+    font-family: var(--font-head);
+    font-size: clamp(2.8rem, 8vw, 6rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fade-up 0.9s ease 0.5s forwards;
+  }
+
+  .hero-title em {
+    font-style: normal;
+    color: var(--amber);
+    position: relative;
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: rgba(232,230,222,0.6);
+    max-width: 520px;
+    margin: 0 auto 3rem;
+    opacity: 0;
+    animation: fade-up 0.9s ease 0.7s forwards;
+  }
+
+  .hero-scroll {
+    opacity: 0;
+    animation: fade-up 0.9s ease 1s forwards;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: rgba(232,230,222,0.35);
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, rgba(245,166,35,0.6), transparent);
+    animation: scroll-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes scroll-pulse {
+    0%, 100% { opacity: 0.4; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.1); }
+  }
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── STORY SECTIONS ── */
+  .story-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 6rem 2rem;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .story-section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .chapter-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--amber);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .story-h2 {
+    font-family: var(--font-head);
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+
+  .story-h2 .accent { color: var(--amber); }
+  .story-h2 .accent-blue { color: var(--blue); }
+  .story-h2 .accent-green { color: var(--green); }
+
+  .story-p {
+    font-size: 1.05rem;
+    color: rgba(232,230,222,0.75);
+    max-width: 640px;
+    margin-bottom: 1.5rem;
+    line-height: 1.8;
+  }
+
+  /* ── VISUAL SCENE: AI NA BOLHA ── */
+  .bubble-scene {
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--bg2);
+    padding: 3rem 2rem;
+    margin: 2.5rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .bubble-scene::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 100%, rgba(74,158,255,0.05) 0%, transparent 60%);
+  }
+
+  .ai-bubble {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: var(--bg3);
+    border: 1px solid rgba(74,158,255,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px;
+    margin: 0 auto 1.5rem;
+    position: relative;
+    animation: float 4s ease-in-out infinite;
+    box-shadow: 0 0 40px rgba(74,158,255,0.1);
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  .bubble-rings {
+    position: absolute;
+    inset: -20px;
+    border-radius: 50%;
+    border: 1px solid rgba(74,158,255,0.15);
+    animation: ring-pulse 3s ease-out infinite;
+  }
+
+  .bubble-rings:nth-child(2) { inset: -40px; animation-delay: 1s; }
+  .bubble-rings:nth-child(3) { inset: -60px; animation-delay: 2s; }
+
+  @keyframes ring-pulse {
+    0% { opacity: 0.6; transform: scale(0.95); }
+    100% { opacity: 0; transform: scale(1.05); }
+  }
+
+  .locked-items {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  .locked-item {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 13px;
+    color: rgba(232,230,222,0.4);
+    text-decoration: line-through;
+    font-family: var(--font-mono);
+  }
+
+  .lock-icon { margin-right: 6px; }
+
+  /* ── TIMELINE ── */
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+    margin: 2.5rem 0;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 8px; bottom: 8px;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--amber), var(--blue), var(--green));
+  }
+
+  .timeline-item {
+    position: relative;
+    padding: 0 0 2.5rem 1.5rem;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .timeline-item.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: -5px; top: 6px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--amber);
+    box-shadow: 0 0 12px var(--amber);
+  }
+
+  .timeline-year {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--amber);
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+
+  .timeline-title {
+    font-family: var(--font-head);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .timeline-text {
+    font-size: 0.95rem;
+    color: rgba(232,230,222,0.6);
+    line-height: 1.6;
+  }
+
+  /* ── PROTOCOLO VISUAL ── */
+  .protocol-visual {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+    margin: 2.5rem 0;
+    padding: 2rem;
+    background: var(--bg2);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+  }
+
+  .pv-box {
+    background: var(--bg3);
+    border-radius: 14px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+
+  .pv-icon { font-size: 2.5rem; margin-bottom: 0.5rem; display: block; }
+  .pv-label { font-family: var(--font-head); font-weight: 700; font-size: 1rem; }
+  .pv-sub { font-size: 11px; color: rgba(232,230,222,0.4); font-family: var(--font-mono); margin-top: 4px; }
+
+  .pv-center {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .pv-badge {
+    background: var(--amber);
+    color: #000;
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 13px;
+    padding: 8px 16px;
+    border-radius: 30px;
+    letter-spacing: 0.05em;
+  }
+
+  .pv-arrow {
+    font-size: 1.2rem;
+    color: var(--amber);
+    animation: arrow-pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes arrow-pulse {
+    0%, 100% { transform: scaleX(1); opacity: 0.6; }
+    50% { transform: scaleX(1.2); opacity: 1; }
+  }
+
+  .pv-desc { font-size: 10px; color: rgba(232,230,222,0.4); font-family: var(--font-mono); letter-spacing: 0.05em; }
+
+  /* ── TOOLS GRID ── */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    margin: 2rem 0;
+  }
+
+  .tool-pill {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+
+  .tool-pill:hover {
+    border-color: rgba(245,166,35,0.4);
+    background: rgba(245,166,35,0.05);
+    transform: translateY(-2px);
+  }
+
+  .tool-pill-icon { font-size: 1.8rem; display: block; margin-bottom: 6px; }
+  .tool-pill-name { font-size: 12px; font-weight: 500; color: rgba(232,230,222,0.8); font-family: var(--font-mono); }
+
+  /* ── QUOTE ── */
+  .blockquote {
+    border-left: 3px solid var(--amber);
+    padding: 1.5rem 0 1.5rem 2rem;
+    margin: 3rem 0;
+    font-size: 1.25rem;
+    font-style: italic;
+    color: rgba(232,230,222,0.8);
+    line-height: 1.6;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+  }
+
+  .blockquote cite {
+    display: block;
+    font-style: normal;
+    font-size: 12px;
+    color: var(--amber);
+    font-family: var(--font-mono);
+    letter-spacing: 0.1em;
+    margin-top: 12px;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0;
+  }
+
+  /* ── TRANSITION SECTION ── */
+  .transition-band {
+    background: linear-gradient(to bottom, var(--bg) 0%, var(--bg2) 50%, #f0ebe0 100%);
+    padding: 6rem 2rem 4rem;
+    text-align: center;
+  }
+
+  .transition-band .tband-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .transition-band .tband-title {
+    font-family: var(--font-head);
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 800;
+    color: #1a1a1a;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+
+  .transition-band .tband-sub {
+    font-size: 1rem;
+    color: #555;
+  }
+
+  .arrow-down {
+    font-size: 2rem;
+    color: #888;
+    animation: bounce 2s ease-in-out infinite;
+    display: block;
+    margin-top: 2rem;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(8px); }
+  }
+
+  /* ── INTERACTIVE SECTION (light mode) ── */
+  #interactive-section {
+    background: #f0ebe0;
+    padding: 2rem 1rem 4rem;
+    min-height: 600px;
+  }
+
+  .interactive-wrapper {
+    max-width: 720px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 4px 60px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+
+  .interactive-header {
+    background: #1a1a26;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
+
+  .interactive-header-title {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    margin-left: 8px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── EXPLAINER (light palette inside) ── */
+  .explainer {
+    padding: 2rem;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .exp-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .exp-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #1a1a26;
+    margin-bottom: 4px;
+  }
+
+  .exp-subtitle {
+    font-size: 13px;
+    color: #888;
+  }
+
+  /* step dots */
+  .step-nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .step-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #ddd;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+  }
+
+  .step-dot.active {
+    background: #1a6ef5;
+    transform: scale(1.3);
+  }
+
+  /* scene card */
+  .scene-card {
+    background: #f7f5f0;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    animation: card-in 0.35s ease;
+  }
+
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .scene-card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a26;
+    margin-bottom: 6px;
+  }
+
+  .scene-card-sub {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+
+  .analogy-box {
+    background: #e8f0ff;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #2a5bd7;
+    margin-bottom: 1rem;
+    border-left: 3px solid #4a9eff;
+  }
+
+  /* flow boxes */
+  .fbox { border-radius: 10px; padding: 10px 12px; font-size: 12px; font-weight: 500; text-align: center; border: 1px solid #e5e5e5; background: #fff; color: #333; }
+  .fbox.claude { background: #e8f0ff; border-color: #a8c8ff; color: #1a4aaa; }
+  .fbox.tool { background: #e8faf0; border-color: #80dca8; color: #1a6a4a; }
+  .fbox.mcp { background: #fff7e0; border-color: #f5c860; color: #8a5c00; font-weight: 700; }
+  .fbox.danger { background: #fff0f0; border-color: #ffaaaa; color: #aa2222; }
+
+  .frow { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .farr { font-size: 14px; color: #aaa; flex-shrink: 0; }
+
+  .bubble-msg { border-left: 3px solid #4a9eff; padding: 8px 14px; margin: 8px 0; border-radius: 0 10px 10px 0; background: #fff; }
+  .bubble-msg.resp { border-color: #3ecf8e; }
+  .bubble-label { font-size: 10px; color: #aaa; margin-bottom: 3px; font-family: 'DM Mono', monospace; }
+  .bubble-text { font-size: 13px; color: #333; }
+
+  .tool-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .tool-card { border: 1px solid #e5e5e5; border-radius: 10px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.2s; background: #fff; }
+  .tool-card:hover { border-color: #aaa; background: #f7f5f0; }
+  .tool-card.selected { border-color: #4a9eff; background: #e8f0ff; }
+  .tool-card-icon { font-size: 22px; margin-bottom: 5px; }
+  .tool-card-label { font-size: 11px; font-weight: 500; color: #333; }
+
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .compare-box { border-radius: 12px; padding: 14px; border: 1px solid; }
+  .compare-box.bad { border-color: #ffaaaa; background: #fff5f5; }
+  .compare-box.good { border-color: #80dca8; background: #f0faf5; }
+  .compare-box-title { font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+  .compare-box.bad .compare-box-title { color: #aa2222; }
+  .compare-box.good .compare-box-title { color: #1a6a4a; }
+  .compare-item { font-size: 11px; color: #555; padding: 4px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+
+  .progress-bar { height: 6px; border-radius: 3px; background: #eee; margin: 10px 0; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; background: #f5a623; transition: width 1s ease; box-shadow: 0 0 8px rgba(245,166,35,0.5); }
+
+  .example-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 10px; }
+  .example-q { flex: 1; background: #f0f0f0; border-radius: 10px; padding: 8px 10px; font-size: 12px; color: #333; }
+  .example-r { flex: 1; background: #e8faf0; border-radius: 10px; padding: 8px 10px; font-size: 12px; color: #1a6a4a; }
+  .example-arr { font-size: 12px; color: #aaa; padding-top: 8px; flex-shrink: 0; }
+
+  .nav-row { display: flex; justify-content: space-between; align-items: center; }
+  .nav-btn { font-size: 13px; cursor: pointer; border: 1px solid #e5e5e5; border-radius: 10px; padding: 8px 18px; background: transparent; color: #555; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+  .nav-btn:hover { background: #f0f0f0; color: #333; }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .nav-btn.primary { background: #1a1a26; color: #fff; border-color: transparent; }
+  .nav-btn.primary:hover { background: #2a2a38; }
+  .step-count { font-size: 12px; color: #aaa; font-family: 'DM Mono', monospace; }
+
+  .tool-detail-msg { background: #e8faf0; border-radius: 10px; padding: 10px 14px; font-size: 12px; color: #1a6a4a; text-align: center; margin-top: 8px; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #1a1a26;
+    text-align: center;
+    padding: 2rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: 0.1em;
+  }
+
+  footer a { color: var(--amber); text-decoration: none; }
+
+  /* ══════════════════════════════════════
+     MOBILE — max-width: 600px
+  ══════════════════════════════════════ */
+  @media (max-width: 600px) {
+
+    /* Hero */
+    #hero { padding: 3rem 1.25rem; min-height: 90vh; }
+    .hero-tag { font-size: 10px; letter-spacing: 0.1em; padding: 5px 12px; margin-bottom: 1.5rem; }
+    .hero-sub { font-size: 1rem; margin-bottom: 2rem; }
+
+    /* Story sections */
+    .story-section { padding: 3rem 1.25rem; }
+    .chapter-num { font-size: 10px; letter-spacing: 0.1em; word-break: break-word; }
+    .story-p { font-size: 0.98rem; }
+    .blockquote { font-size: 1.05rem; padding: 1rem 0 1rem 1.25rem; margin: 2rem 0; }
+
+    /* Bubble scene */
+    .bubble-scene { padding: 2rem 1rem; }
+    .ai-bubble { width: 90px; height: 90px; font-size: 36px; }
+    .locked-items { gap: 8px; }
+    .locked-item { font-size: 11px; padding: 6px 10px; }
+
+    /* Timeline */
+    .timeline { padding-left: 1.25rem; }
+    .timeline-item { padding-left: 1.25rem; padding-bottom: 2rem; }
+
+    /* Protocol visual — stack vertically */
+    .protocol-visual {
+      grid-template-columns: 1fr;
+      gap: 12px;
+      padding: 1.25rem;
+    }
+    .pv-center { flex-direction: row; gap: 12px; }
+    .pv-center .pv-arrow { transform: rotate(90deg); }
+
+    /* Tools grid */
+    .tools-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .tool-pill { padding: 0.75rem 0.5rem; }
+    .tool-pill-icon { font-size: 1.4rem; }
+    .tool-pill-name { font-size: 10px; }
+
+    /* Transition band */
+    .transition-band { padding: 4rem 1.25rem 3rem; }
+
+    /* Interactive wrapper */
+    .interactive-wrapper { border-radius: 16px; }
+    .interactive-header-title { display: none; }
+    .explainer { padding: 1.25rem; }
+    .exp-title { font-size: 1.2rem; }
+
+    /* Scene card internals */
+    .scene-card { padding: 1rem; }
+
+    /* Step 1 — frow: stack claude box above grid */
+    .frow { flex-direction: column; }
+    .frow > .fbox.claude { width: 100%; }
+
+    /* Step 2 — fix hardcoded width on tool mini-grid */
+    .fbox-tool-wrap { width: 100% !important; grid-template-columns: repeat(2, 1fr) !important; }
+
+    /* Step 3 — tool grid: 2 cols */
+    .tool-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+    /* Step 5 — compare grid: stack */
+    .compare-grid { grid-template-columns: 1fr !important; }
+
+    /* Step 6 — example rows: stack */
+    .example-row { flex-direction: column; gap: 4px; }
+    .example-arr { display: none; }
+    .example-q, .example-r { width: 100%; }
+    .example-r::before { content: '→ '; }
+
+    /* Nav buttons */
+    .nav-btn { padding: 8px 12px; font-size: 12px; }
+    .nav-row { gap: 8px; }
+
+    /* Footer */
+    footer { font-size: 10px; padding: 1.5rem 1rem; line-height: 1.8; }
+  }
+
+  @media (max-width: 380px) {
+    .tools-grid { grid-template-columns: repeat(2, 1fr); }
+    .hero-title { letter-spacing: -0.02em; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<!-- ════════════════════════════════════════
+     HERO
+════════════════════════════════════════ -->
+<section id="hero">
+  <span class="hero-tag">Novembro 2024 — Anthropic</span>
+  <h1 class="hero-title">
+    O dia em que o AI<br>
+    <em>saiu da bolha</em>
+  </h1>
+  <p class="hero-sub">
+    Uma história sobre inteligência presa, um problema elegante — e o protocolo que mudou tudo.
+  </p>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    role scroll para começar
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════════════════════════════════════
+     CAPÍTULO 1
+════════════════════════════════════════ -->
+<section class="story-section">
+  <div class="chapter-num">Capítulo 01 — O Prisioneiro Mais Inteligente do Mundo</div>
+  <h2 class="story-h2">Ele sabia <em class="accent">tudo</em>.<br>Mas não podia fazer <em class="accent">nada</em>.</h2>
+
+  <p class="story-p">
+    Era 2023. Os modelos de linguagem haviam se tornado extraordinários. O Claude, o GPT, o Gemini — capazes de escrever, raciocinar, programar, debater filosofia às 3 da manhã.
+  </p>
+  <p class="story-p">
+    Mas havia um problema silencioso, quase irônico: toda essa inteligência vivia num isolamento perfeito. Como um gênio trancado numa sala vazia.
+  </p>
+
+  <div class="bubble-scene">
+    <div class="ai-bubble">
+      <div class="bubble-rings"></div>
+      <div class="bubble-rings"></div>
+      <div class="bubble-rings"></div>
+      🤖
+    </div>
+    <p style="color: rgba(232,230,222,0.5); font-size: 14px; font-family: var(--font-mono); margin-bottom: 1rem;">O AI: superinteligente. Isolado.</p>
+    <div class="locked-items">
+      <span class="locked-item"><span class="lock-icon">🔒</span>E-mail</span>
+      <span class="locked-item"><span class="lock-icon">🔒</span>Arquivos</span>
+      <span class="locked-item"><span class="lock-icon">🔒</span>Calendário</span>
+      <span class="locked-item"><span class="lock-icon">🔒</span>Internet</span>
+      <span class="locked-item"><span class="lock-icon">🔒</span>Sistemas</span>
+    </div>
+  </div>
+
+  <p class="story-p">
+    Você podia perguntar "como organizar meu e-mail?" e ele daria dez estratégias brilhantes. Mas não podia abrir sua caixa de entrada. Sabia tudo sobre gestão de tempo, mas não conseguia criar um evento no seu calendário.
+  </p>
+
+  <div class="blockquote">
+    "É como contratar o melhor assistente do mundo e proibir ele de tocar em qualquer coisa do escritório."
+    <cite>— Descrição interna na Anthropic, 2023</cite>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════════════════════════════════════
+     CAPÍTULO 2
+════════════════════════════════════════ -->
+<section class="story-section">
+  <div class="chapter-num">Capítulo 02 — O Caos das Gambiarras</div>
+  <h2 class="story-h2">Cada empresa <em class="accent-blue">inventava</em><br>sua própria solução.</h2>
+
+  <p class="story-p">
+    Não é que ninguém tentasse resolver. Pelo contrário. Mas cada empresa construía sua integração do zero, de um jeito diferente, com um protocolo diferente, em uma linguagem diferente.
+  </p>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">Empresa A</div>
+      <div class="timeline-title">Criou um conector customizado para o GPT.</div>
+      <div class="timeline-text">Funcionou. Por 6 meses. Até o GPT mudar sua API. Começou tudo de novo.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot" style="background: var(--blue); box-shadow: 0 0 12px var(--blue);"></div>
+      <div class="timeline-year">Empresa B</div>
+      <div class="timeline-title">Desenvolveu um middleware para 3 ferramentas.</div>
+      <div class="timeline-text">Funcionou. Mas não funcionava com outro AI. Tinha que refazer.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot" style="background: var(--green); box-shadow: 0 0 12px var(--green);"></div>
+      <div class="timeline-year">Empresa C</div>
+      <div class="timeline-title">Resolveu "uma vez por todas" com sua plataforma própria.</div>
+      <div class="timeline-text">Gastou meses. Funcionava só dentro deles. E aí veio um AI novo...</div>
+    </div>
+  </div>
+
+  <p class="story-p">
+    O ecossistema inteiro estava fragmentado. Era como se cada país tivesse inventado sua própria tomada elétrica — e os aparelhos simplesmente não funcionassem fora de casa.
+  </p>
+  <p class="story-p">
+    Precisava de um padrão. Um protocolo comum. Uma linguagem que todos entendessem.
+  </p>
+</section>
+
+<hr class="divider">
+
+<!-- ════════════════════════════════════════
+     CAPÍTULO 3
+════════════════════════════════════════ -->
+<section class="story-section">
+  <div class="chapter-num">Capítulo 03 — O Momento "E se..."</div>
+  <h2 class="story-h2">Em algum escritório<br>de <em class="accent">San Francisco</em>…</h2>
+
+  <p class="story-p">
+    Novembro de 2024. A equipe de engenharia da Anthropic estava olhando para o mesmo problema de sempre: como fazer o Claude interagir com o mundo de forma padronizada, segura e escalável?
+  </p>
+  <p class="story-p">
+    A pergunta que mudou tudo foi simples:
+  </p>
+
+  <div class="blockquote">
+    "E se, em vez de cada ferramenta aprender a falar com cada AI — a gente criar um idioma único que todos falem?"
+    <cite>— Time de Engenharia, Anthropic</cite>
+  </div>
+
+  <p class="story-p">
+    A ideia não era nova. Tinha precedentes: o HTTP padronizou a web. O USB-C padronizou carregadores. O SMTP padronizou e-mails. A internet inteira é construída sobre protocolos — acordos de como as coisas conversam.
+  </p>
+  <p class="story-p">
+    Só ninguém havia feito isso para AIs falarem com ferramentas.
+  </p>
+  <p class="story-p">
+    Até agora.
+  </p>
+</section>
+
+<hr class="divider">
+
+<!-- ════════════════════════════════════════
+     CAPÍTULO 4
+════════════════════════════════════════ -->
+<section class="story-section">
+  <div class="chapter-num">Capítulo 04 — Nasce o MCP</div>
+  <h2 class="story-h2"><em class="accent">Model Context Protocol</em>.<br>Um nome simples para uma ideia enorme.</h2>
+
+  <p class="story-p">
+    Em novembro de 2024, a Anthropic lançou o MCP — Model Context Protocol — e o disponibilizou como código aberto para o mundo. Qualquer empresa, qualquer desenvolvedor poderia criar um "servidor MCP" e conectar qualquer ferramenta a qualquer AI.
+  </p>
+
+  <div class="protocol-visual">
+    <div class="pv-box">
+      <span class="pv-icon">🤖</span>
+      <div class="pv-label">O AI</div>
+      <div class="pv-sub">Claude, GPT, Gemini...</div>
+    </div>
+    <div class="pv-center">
+      <div class="pv-arrow">⟵</div>
+      <div class="pv-badge">MCP</div>
+      <div class="pv-arrow">⟶</div>
+      <div class="pv-desc">protocolo universal</div>
+    </div>
+    <div class="pv-box">
+      <span class="pv-icon">🌐</span>
+      <div class="pv-label">O Mundo</div>
+      <div class="pv-sub">qualquer ferramenta</div>
+    </div>
+  </div>
+
+  <p class="story-p">
+    A lógica é elegante: ao invés de N ferramentas se integrando com M modelos de AI (N × M integrações), agora qualquer ferramenta fala MCP, e qualquer AI entende MCP. Uma integração para cada um, e todos se conectam.
+  </p>
+
+  <div class="tools-grid">
+    <div class="tool-pill"><span class="tool-pill-icon">📧</span><span class="tool-pill-name">Gmail</span></div>
+    <div class="tool-pill"><span class="tool-pill-icon">📅</span><span class="tool-pill-name">Calendar</span></div>
+    <div class="tool-pill"><span class="tool-pill-icon">💾</span><span class="tool-pill-name">Google Drive</span></div>
+    <div class="tool-pill"><span class="tool-pill-icon">💬</span><span class="tool-pill-name">Slack</span></div>
+    <div class="tool-pill"><span class="tool-pill-icon">📊</span><span class="tool-pill-name">Salesforce</span></div>
+    <div class="tool-pill"><span class="tool-pill-icon">🐙</span><span class="tool-pill-name">GitHub</span></div>
+    <div class="tool-pill"><span class="tool-pill-icon">🗄️</span><span class="tool-pill-name">Databases</span></div>
+    <div class="tool-pill"><span class="tool-pill-icon">🔧</span><span class="tool-pill-name">Qualquer API</span></div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════════════════════════════════════
+     CAPÍTULO 5
+════════════════════════════════════════ -->
+<section class="story-section">
+  <div class="chapter-num">Capítulo 05 — O Mundo Mudou</div>
+  <h2 class="story-h2">O AI finalmente<br><em class="accent-green">saiu da bolha</em>.</h2>
+
+  <p class="story-p">
+    Em menos de um ano, o MCP foi adotado por Anthropic, Microsoft, Google, OpenAI e centenas de outras empresas. Hoje, é o padrão de fato para conectar AIs ao mundo real.
+  </p>
+  <p class="story-p">
+    O que era um gênio trancado numa sala, virou um assistente que realmente age. Que abre seu e-mail, marca reuniões, lê documentos, pesquisa em tempo real, e executa tarefas nos sistemas que você já usa.
+  </p>
+
+  <div class="blockquote">
+    "O MCP fez pelo AI o que o HTTP fez pela web: criou a infraestrutura invisível que torna tudo possível."
+    <cite>— Desenvolvedores, em toda parte</cite>
+  </div>
+
+  <p class="story-p">
+    E tudo começou com uma pergunta simples numa sala em San Francisco: <em>"e se tivesse um idioma que todos entendessem?"</em>
+  </p>
+  <p class="story-p">
+    Quer entender como ele funciona de verdade? Role para baixo. ↓
+  </p>
+</section>
+
+<!-- ════════════════════════════════════════
+     TRANSITION
+════════════════════════════════════════ -->
+<div class="transition-band">
+  <span class="tband-label">Agora: a explicação interativa</span>
+  <div class="tband-title">Veja o MCP em ação</div>
+  <div class="tband-sub">Explore como o protocolo funciona, passo a passo.</div>
+  <span class="arrow-down">↓</span>
+</div>
+
+<!-- ════════════════════════════════════════
+     INTERACTIVE SECTION
+════════════════════════════════════════ -->
+<section id="interactive-section">
+  <div class="interactive-wrapper">
+    <div class="interactive-header">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <span class="interactive-header-title">mcp-explainer.html — rodando localmente</span>
+    </div>
+
+    <div class="explainer">
+      <div class="exp-header">
+        <div class="exp-title">O que é o protocolo MCP?</div>
+        <div class="exp-subtitle">Uma explicação interativa — sem termos técnicos</div>
+      </div>
+
+      <div class="step-nav" id="step-nav"></div>
+      <div id="scene-card"></div>
+      <div class="nav-row">
+        <button class="nav-btn" id="btn-prev" onclick="changeStep(-1)" disabled>← Anterior</button>
+        <span class="step-count" id="step-count"></span>
+        <button class="nav-btn primary" id="btn-next" onclick="changeStep(1)">Próximo →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════ -->
+<footer>
+  MCP — Model Context Protocol &nbsp;·&nbsp;
+  Anthropic, novembro 2024 &nbsp;·&nbsp;
+  <a href="https://modelcontextprotocol.io" target="_blank">modelcontextprotocol.io</a>
+</footer>
+
+<script>
+  /* ── PROGRESS BAR ── */
+  window.addEventListener('scroll', () => {
+    const doc = document.documentElement;
+    const pct = (window.scrollY / (doc.scrollHeight - doc.clientHeight)) * 100;
+    document.getElementById('progress').style.width = pct + '%';
+  });
+
+  /* ── SCROLL REVEAL ── */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        if (e.target.classList.contains('timeline-item')) {
+          setTimeout(() => e.target.classList.add('visible'), 150);
+        }
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.story-section, .timeline-item').forEach(el => observer.observe(el));
+
+  /* ── INTERACTIVE EXPLAINER ── */
+  const steps = [
+    {
+      title: "O problema: o AI vive numa bolha",
+      sub: "Imagine um assistente superinteligente trancado numa sala sem janelas, sem telefone, sem internet. Ele sabe muita coisa — mas não pode checar seu e-mail, ver o clima, ou acessar seus arquivos.",
+      analogy: "É como contratar o melhor chef do mundo... mas proibir ele de usar a geladeira.",
+      render: () => `
+        <div class="frow" style="gap:10px;align-items:flex-start;">
+          <div class="fbox claude" style="padding:18px 12px;flex:1;min-width:100px;">🤖 Claude (o AI)</div>
+          <div style="flex:1;min-width:130px;">
+            <div style="font-size:11px;color:#aaa;text-align:center;margin-bottom:8px;">SEM acesso a:</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+              ${['📧 E-mail','📅 Calendário','📁 Arquivos','🌐 Internet'].map(t=>`<div class="fbox danger" style="font-size:11px;text-decoration:line-through;opacity:0.7;">${t}</div>`).join('')}
+            </div>
+          </div>
+        </div>
+        <p style="text-align:center;font-size:11px;color:#aaa;margin-top:10px;">O AI responde só com o que aprendeu no treinamento</p>
+      `
+    },
+    {
+      title: "A solução: uma tomada universal chamada MCP",
+      sub: "O MCP é como uma tomada universal que permite ao AI se conectar a diferentes ferramentas de forma padronizada. Um 'protocolo' — um idioma comum que todos entendem.",
+      analogy: "Assim como o USB-C funciona em qualquer celular moderno, o MCP é o padrão que qualquer ferramenta usa para falar com o AI.",
+      render: () => `
+        <div style="display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap;">
+          <div class="fbox claude" style="min-width:90px;padding:14px 8px;flex-shrink:0;">🤖 Claude</div>
+          <div style="text-align:center;flex-shrink:0;">
+            <div class="fbox mcp" style="padding:8px 14px;">⚡ MCP</div>
+            <div style="font-size:10px;color:#aaa;margin-top:4px;">protocolo universal</div>
+          </div>
+          <div class="fbox-tool-wrap" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;flex:1;min-width:160px;">
+            ${[['📧','E-mail'],['📅','Calendário'],['📁','Arquivos'],['🔧','Qualquer app']].map(([i,l])=>`<div class="fbox tool" style="padding:8px 4px;font-size:11px;">${i} ${l}</div>`).join('')}
+          </div>
+        </div>
+        <p style="text-align:center;font-size:12px;color:#888;margin-top:12px;">Com o MCP, o AI pode conversar com o mundo lá fora</p>
+      `
+    },
+    {
+      title: "Como funciona na prática?",
+      sub: "Quando você pede algo que exige uma ferramenta externa, acontece uma conversa por baixo dos panos. O MCP organiza essa troca de forma segura e padronizada.",
+      analogy: "É como um garçom: você pede ao garçom, ele vai à cozinha, traz o resultado. Você não precisa entrar na cozinha.",
+      render: () => `
+        <div class="bubble-msg"><div class="bubble-label">Você pergunta:</div><div class="bubble-text">"Quais reuniões tenho amanhã?"</div></div>
+        <div style="font-size:11px;color:#aaa;padding:4px 0 4px 12px;">↓ Claude entende que precisa consultar um calendário</div>
+        <div style="font-size:11px;color:#a06b00;padding:4px 0;">⚡ MCP traduz e envia a consulta ao Google Calendar</div>
+        <div style="font-size:11px;color:#aaa;padding:4px 0 4px 12px;">↑ Calendar responde com os dados</div>
+        <div class="bubble-msg resp"><div class="bubble-label">Claude responde:</div><div class="bubble-text">"Amanhã você tem 2 reuniões: às 9h com a equipe e às 14h com o cliente."</div></div>
+      `
+    },
+    {
+      title: "Quais ferramentas podem ser conectadas?",
+      sub: "Qualquer sistema pode criar um 'servidor MCP' e se tornar acessível ao AI. Clique numa ferramenta para ver um exemplo de uso.",
+      analogy: "É como uma loja de aplicativos — qualquer desenvolvedor cria um app, e qualquer usuário instala.",
+      render: () => {
+        const tools = [
+          {icon:'📧', name:'Gmail', ex:'Resumir e-mails, redigir respostas automaticamente'},
+          {icon:'📅', name:'Calendar', ex:'Ver agenda completa, criar e mover eventos'},
+          {icon:'💾', name:'Google Drive', ex:'Abrir, criar e editar documentos e planilhas'},
+          {icon:'💬', name:'Slack', ex:'Ler canais, responder mensagens, criar posts'},
+          {icon:'📊', name:'Salesforce', ex:'Consultar leads, atualizar oportunidades, criar contatos'},
+          {icon:'🌐', name:'Busca web', ex:'Pesquisar informações atuais e notícias em tempo real'},
+        ];
+        return `
+          <div class="tool-grid" id="tool-grid">
+            ${tools.map((t,i)=>`<div class="tool-card" onclick="selectTool(${i},'${t.ex}')" id="tc-${i}"><div class="tool-card-icon">${t.icon}</div><div class="tool-card-label">${t.name}</div></div>`).join('')}
+          </div>
+          <div id="tool-detail" style="margin-top:10px;min-height:40px;font-size:12px;color:#aaa;text-align:center;">↑ Clique numa ferramenta para ver um exemplo</div>
+        `;
+      }
+    },
+    {
+      title: "Por que isso é revolucionário?",
+      sub: "Antes do MCP, cada empresa precisava criar uma integração própria para cada AI. Era caro, lento e não escalava. O MCP padronizou tudo.",
+      analogy: "Imagine se cada país tivesse uma voltagem diferente. O MCP é o acordo que definiu um padrão único mundial.",
+      render: () => `
+        <div class="compare-grid">
+          <div class="compare-box bad">
+            <div class="compare-box-title">❌ Antes do MCP</div>
+            ${['Cada integração era única','Alto custo de desenvolvimento','Difícil de manter','Não escalava'].map(t=>`<div class="compare-item">${t}</div>`).join('')}
+          </div>
+          <div class="compare-box good">
+            <div class="compare-box-title">✅ Com o MCP</div>
+            ${['Padrão único e universal','Crie uma vez, funciona em tudo','Fácil de manter','Escalabilidade infinita'].map(t=>`<div class="compare-item">${t}</div>`).join('')}
+          </div>
+        </div>
+        <div style="margin-top:14px;">
+          <div style="font-size:11px;color:#aaa;margin-bottom:6px;">Adoção do MCP no mercado (2024 → hoje)</div>
+          <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#aaa;"><span>Lançamento</span><span>Hoje ~78%</span></div>
+        </div>
+      `
+    },
+    {
+      title: "O que muda para você?",
+      sub: "Na prática, o MCP transforma o AI de uma 'enciclopédia que responde' em um 'assistente que age'. Você pede coisas concretas e ele realmente executa.",
+      analogy: "É a diferença entre ter um consultor que dá conselhos e um assistente que faz as tarefas por você.",
+      render: () => [
+        {q:'"Organize minha caixa de entrada"', r:'Lê, categoriza e arquiva seus e-mails'},
+        {q:'"Marque uma reunião com a equipe"', r:'Verifica agendas e cria o evento automaticamente'},
+        {q:'"Resuma o documento que te mandei"', r:'Abre o arquivo e entrega o resumo em segundos'},
+        {q:'"O que está acontecendo no mercado?"', r:'Busca e sintetiza notícias em tempo real'},
+      ].map(e=>`
+        <div class="example-row">
+          <div class="example-q">${e.q}</div>
+          <div class="example-arr">→</div>
+          <div class="example-r">${e.r}</div>
+        </div>
+      `).join('')
+    }
+  ];
+
+  let current = 0;
+
+  function render() {
+    const s = steps[current];
+    document.getElementById('step-nav').innerHTML = steps.map((_,i)=>
+      `<button class="step-dot ${i===current?'active':''}" onclick="goTo(${i})"></button>`
+    ).join('');
+    document.getElementById('scene-card').innerHTML = `
+      <div class="scene-card">
+        <div class="scene-card-title">${s.title}</div>
+        <div class="scene-card-sub">${s.sub}</div>
+        <div class="analogy-box">💡 ${s.analogy}</div>
+        ${s.render()}
+      </div>
+    `;
+    document.getElementById('btn-prev').disabled = current === 0;
+    document.getElementById('step-count').textContent = `${current+1} / ${steps.length}`;
+    const nb = document.getElementById('btn-next');
+    if (current === steps.length - 1) {
+      nb.textContent = 'Voltar ao início ↑';
+      nb.onclick = () => { window.scrollTo({top:0, behavior:'smooth'}); };
+    } else {
+      nb.textContent = 'Próximo →';
+      nb.onclick = () => changeStep(1);
+    }
+    if (current === 4) {
+      setTimeout(() => {
+        const f = document.getElementById('prog-fill');
+        if (f) f.style.width = '78%';
+      }, 400);
+    }
+  }
+
+  function changeStep(d) { current = Math.max(0, Math.min(steps.length-1, current+d)); render(); }
+  function goTo(i) { current = i; render(); }
+  function selectTool(i, ex) {
+    document.querySelectorAll('.tool-card').forEach((c,j) => c.classList.toggle('selected', j===i));
+    const d = document.getElementById('tool-detail');
+    if (d) d.innerHTML = `<div class="tool-detail-msg">✅ ${ex}</div>`;
+  }
+
+  render();
+</script>
+</body>
+</html>
