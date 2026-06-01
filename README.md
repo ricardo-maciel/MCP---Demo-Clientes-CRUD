@@ -61,4 +61,5 @@ Este repositório receberá novas evoluções com foco prático, incluindo:
 
 ## Observações
 
-Este repositório tem foco educ
+Este repositório tem foco educacional/demonstrativo.  
+Adapte políticas de segurança, autenticação e limites de consumo antes de usar em produção.
