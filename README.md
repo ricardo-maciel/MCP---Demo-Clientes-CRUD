@@ -39,6 +39,20 @@ O estudo cobre os principais pontos:
 4. Resultado final com publicação de asset MCP e tools no Exchange;
 5. Boas práticas de segurança e governança (rate limit, client enforcement, exposição mínima etc.).
 
+## Futuras atualizações (roadmap)
+
+Este repositório receberá novas evoluções com foco prático, incluindo:
+
+- criação de APIs do zero até o deploy completo;
+- cenários de deploy em **CloudHub 1.0** e **CloudHub 2.0** para uso via **MCP Bridge**;
+- criação de **App MCP Server**;
+- uso de **conectores MCP** dentro dos fluxos Mule;
+- configuração e uso de MCP Server nas principais IAs/ferramentas do mercado:
+  - **Cursor**
+  - **Postman**
+  - **Claude**
+  - **Agentforce**
+
 ## Público-alvo
 
 - Desenvolvedores MuleSoft;
@@ -47,5 +61,4 @@ O estudo cobre os principais pontos:
 
 ## Observações
 
-Este repositório tem foco educacional/demonstrativo.  
-Adapte políticas de segurança, autenticação e limites de consumo antes de usar em produção.
+Este repositório tem foco educ
