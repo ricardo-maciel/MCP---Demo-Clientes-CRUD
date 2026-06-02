@@ -1,0 +1,363 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue-dark: #0B2FCE;
+    --blue-mid: #1A4FFF;
+    --gold: #F5C518;
+    --green: #4CAF50;
+    --green-light: #A8E6A0;
+    --purple: #7B4FAF;
+    --purple-light: #E8D5F5;
+    --gray-light: #F4F6FF;
+    --text-dark: #111827;
+    --text-mid: #374151;
+    --text-muted: #6B7280;
+  }
+  body { font-family: system-ui, sans-serif; background: var(--gray-light); }
+  .shell { max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+  .nav-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .nav-logo { background: var(--blue-dark); color: #fff; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 8px; letter-spacing: .5px; }
+  .nav-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .nav-tab { background: #fff; border: 1.5px solid #D1D5DB; border-radius: 8px; padding: 6px 14px; font-size: 13px; color: var(--text-mid); cursor: pointer; transition: all .18s; font-weight: 500; }
+  .nav-tab:hover { border-color: var(--blue-mid); color: var(--blue-mid); }
+  .nav-tab.active { background: var(--blue-dark); color: #fff; border-color: var(--blue-dark); }
+  .slide { display: none; }
+  .slide.active { display: block; animation: fadeIn .3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CAPA */
+  .capa { background: var(--blue-dark); border-radius: 20px; padding: 3rem 2.5rem; position: relative; overflow: hidden; min-height: 300px; display: flex; align-items: center; gap: 2rem; }
+  .capa-circle { position: absolute; border-radius: 50%; background: var(--blue-mid); opacity: .35; }
+  .capa-star { position: absolute; background: var(--gold); clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); }
+  .capa-content { position: relative; z-index: 2; flex: 1; }
+  .capa-eyebrow { font-size: 12px; color: #A0BFFF; letter-spacing: 2px; text-transform: uppercase; margin-bottom: .75rem; font-weight: 500; }
+  .capa-title { font-size: 2.4rem; font-weight: 700; color: #fff; line-height: 1.15; margin-bottom: 1rem; }
+  .capa-title span { color: var(--gold); }
+  .capa-sub { font-size: 1rem; color: #B0CAFF; max-width: 380px; line-height: 1.6; }
+  .capa-badge { display: inline-flex; align-items: center; gap: 8px; margin-top: 1.5rem; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 50px; padding: 8px 18px; color: #fff; font-size: 13px; }
+  .capa-robot { position: relative; z-index: 2; flex-shrink: 0; }
+  .robot-circle { width: 130px; height: 130px; border-radius: 50%; background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.15); display: flex; align-items: center; justify-content: center; font-size: 64px; }
+  .sf-badge { background: #00A1E0; color: #fff; border-radius: 12px; padding: 6px 14px; font-size: 13px; font-weight: 700; margin-top: 10px; text-align: center; }
+
+  /* Genéricos */
+  .section-title { font-size: 1.4rem; font-weight: 600; color: var(--text-dark); margin-bottom: .3rem; }
+  .section-sub { font-size: .9rem; color: var(--text-muted); margin-bottom: 1.25rem; }
+  .card { background: #fff; border-radius: 14px; border: 1px solid #E5E7EB; padding: 1.25rem 1.5rem; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+  .tag-blue { background: #DBEAFE; color: #1E40AF; }
+  .tag-orange { background: #FEF3C7; color: #92400E; }
+
+  /* SLIDE 2 */
+  .approach-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 1.25rem; }
+  .approach-card { background: #fff; border-radius: 14px; border: 2px solid #E5E7EB; padding: 1.25rem; cursor: pointer; transition: all .2s; }
+  .approach-card:hover { border-color: var(--blue-mid); transform: translateY(-2px); }
+  .approach-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; margin-bottom: .75rem; }
+  .approach-card-title { font-weight: 600; font-size: .9rem; color: var(--text-dark); margin-bottom: .4rem; }
+  .approach-card-desc { font-size: .8rem; color: var(--text-muted); line-height: 1.5; }
+  .pros { list-style: none; margin-top: .65rem; display: flex; flex-direction: column; gap: 3px; }
+  .pros li { font-size: .78rem; display: flex; gap: 5px; color: var(--text-mid); }
+  .pros li::before { content: "✓"; color: var(--green); font-weight: 700; flex-shrink: 0; }
+  .cons li::before { content: "✗"; color: #EF4444; }
+  .steps-card { background: #fff; border-radius: 14px; border: 1px solid #E5E7EB; padding: 1.25rem 1.5rem; }
+  .step-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
+  .step-dot { width: 26px; height: 26px; border-radius: 50%; background: #EF4444; color: #fff; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-text { font-size: .86rem; color: var(--text-mid); }
+
+  /* SLIDE 3 */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .state-card { border-radius: 14px; padding: 1.25rem; }
+  .state-current { background: #fff; border: 2px solid var(--green); }
+  .state-future { background: #EEF2FF; border: 2px solid var(--blue-dark); }
+  .state-label { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; margin-bottom: 1rem; }
+  .label-green { background: var(--green); color: #fff; }
+  .label-blue { background: var(--blue-dark); color: #fff; }
+  .flow-step { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+  .flow-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .flow-label { font-size: .8rem; color: var(--text-mid); line-height: 1.3; }
+  .flow-label strong { display: block; font-size: .82rem; color: var(--text-dark); }
+  .flow-arrow { color: #9CA3AF; font-size: 15px; margin: 1px 0 1px 17px; }
+  .agent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: .65rem; }
+  .agent-card { background: #fff; border-radius: 10px; padding: 9px; border: 1px solid #E5E7EB; text-align: center; }
+  .agent-name { font-size: .74rem; font-weight: 600; color: var(--text-dark); }
+  .agent-sub { font-size: .68rem; color: var(--text-muted); }
+  .layer-row { background: rgba(255,255,255,.7); border-radius: 10px; padding: 7px 11px; margin-bottom: 5px; font-size: .8rem; display: flex; align-items: center; gap: 7px; }
+  .layer-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* SLIDE 4 */
+  .arch-box { background: #EEF2FF; border: 2px solid var(--blue-dark); border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 12px; }
+  .arch-box-title { font-size: .85rem; font-weight: 700; color: var(--blue-dark); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .arch-node { background: #fff; border: 1.5px solid #E5E7EB; border-radius: 12px; padding: .75rem 1rem; display: flex; flex-direction: column; align-items: center; text-align: center; font-size: .78rem; color: var(--text-mid); gap: 5px; }
+  .arch-node i { font-size: 22px; color: var(--blue-dark); }
+  .arch-node strong { font-size: .8rem; color: var(--text-dark); }
+  .endpoint-pill { background: var(--green); color: #fff; border-radius: 8px; padding: 4px 10px; font-size: .75rem; font-weight: 600; font-family: monospace; }
+  .upstream-item { display: flex; align-items: center; gap: 8px; background: #fff; border-radius: 8px; padding: 7px 10px; border: 1px solid #E5E7EB; margin-bottom: 6px; }
+  .upstream-url { font-family: monospace; font-size: .78rem; color: var(--blue-dark); font-weight: 600; }
+  .upstream-dest { font-size: .74rem; color: var(--text-muted); margin-left: auto; }
+  .mcp-label { background: var(--purple-light); border: 1.5px solid #9B59B6; border-radius: 10px; padding: 7px 14px; font-size: .82rem; font-weight: 600; color: var(--purple); display: inline-flex; align-items: center; gap: 8px; margin-bottom: 1rem; }
+
+  /* NAV BOTTOM */
+  .nav-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; }
+  .nav-btn { background: var(--blue-dark); color: #fff; border: none; border-radius: 8px; padding: 9px 22px; font-size: .85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: opacity .15s; }
+  .nav-btn:hover { opacity: .85; }
+  .nav-btn:disabled { opacity: .3; cursor: default; }
+  .nav-dots { display: flex; gap: 8px; }
+  .nav-dot { width: 9px; height: 9px; border-radius: 50%; background: #D1D5DB; cursor: pointer; transition: background .18s; border: none; }
+  .nav-dot.active { background: var(--blue-dark); }
+
+  @media(max-width:600px) {
+    .approach-grid, .two-col { grid-template-columns: 1fr; }
+    .capa { flex-direction: column; }
+    .capa-title { font-size: 1.8rem; }
+  }
+</style>
+
+<div class="shell">
+  <div class="nav-header">
+    <span class="nav-logo">MuleSoft</span>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="goTo(0)">Visão Geral</button>
+      <button class="nav-tab" onclick="goTo(1)">Abordagem Tradicional</button>
+      <button class="nav-tab" onclick="goTo(2)">Estado Atual → Futuro</button>
+      <button class="nav-tab" onclick="goTo(3)">Solução de Plataforma</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 1 -->
+  <div class="slide active" id="s0">
+    <div class="capa">
+      <div class="capa-circle" style="width:300px;height:300px;top:-70px;right:-50px;"></div>
+      <div class="capa-circle" style="width:160px;height:160px;bottom:-30px;right:170px;opacity:.18;"></div>
+      <div class="capa-star" style="width:14px;height:14px;top:38px;right:175px;"></div>
+      <div class="capa-star" style="width:9px;height:9px;top:22px;right:138px;"></div>
+      <div class="capa-star" style="width:11px;height:11px;top:60px;right:112px;"></div>
+      <div class="capa-star" style="width:10px;height:10px;bottom:75px;right:255px;"></div>
+      <div class="capa-content">
+        <p class="capa-eyebrow">MuleSoft · Salesforce</p>
+        <h1 class="capa-title">MuleSoft's<br><span>MCP Bridge</span></h1>
+        <p class="capa-sub">Torne as APIs existentes prontas para agentes de IA, sem reescrever sua integração.</p>
+        <div class="capa-badge">
+          <i class="ti ti-plug-connected" aria-hidden="true"></i>
+          Model Context Protocol · 2025
+        </div>
+      </div>
+      <div class="capa-robot">
+        <div class="robot-circle">🤖</div>
+        <div class="sf-badge">salesforce</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:1.25rem;">
+      <div class="card" style="text-align:center;">
+        <i class="ti ti-api" style="font-size:28px;color:var(--blue-dark);display:block;margin-bottom:8px;" aria-hidden="true"></i>
+        <p style="font-weight:600;font-size:.9rem;color:var(--text-dark);">APIs existentes</p>
+        <p style="font-size:.8rem;color:var(--text-muted);margin-top:4px;">Reaproveite SAPIs, PAPIs e EAPIs já construídas</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <i class="ti ti-robot" style="font-size:28px;color:var(--blue-dark);display:block;margin-bottom:8px;" aria-hidden="true"></i>
+        <p style="font-weight:600;font-size:.9rem;color:var(--text-dark);">Pronto para agentes</p>
+        <p style="font-size:.8rem;color:var(--text-muted);margin-top:4px;">Exponha ferramentas MCP para qualquer LLM</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <i class="ti ti-shield-check" style="font-size:28px;color:var(--blue-dark);display:block;margin-bottom:8px;" aria-hidden="true"></i>
+        <p style="font-weight:600;font-size:.9rem;color:var(--text-dark);">Flex Gateway</p>
+        <p style="font-size:.8rem;color:var(--text-muted);margin-top:4px;">Governança e segurança via API Manager</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2 -->
+  <div class="slide" id="s1">
+    <p class="section-title">Abordagem Tradicional</p>
+    <p class="section-sub">Soluções em nível de aplicação — compare as opções disponíveis</p>
+    <div class="approach-grid">
+      <div class="approach-card" onclick="selectCard(this)">
+        <div class="approach-num" style="background:#DBEAFE;color:#1E40AF;">1</div>
+        <p class="approach-card-title">Novo App de Implementação</p>
+        <p class="approach-card-desc">Crie um novo app MuleSoft chamando APIs existentes para cada ferramenta MCP.</p>
+        <ul class="pros"><li>Ponto de extremidade único</li><li>Código isolado</li></ul>
+        <ul class="pros cons"><li>Duplicação de lógica</li><li>Novo ciclo de deploy</li></ul>
+      </div>
+      <div class="approach-card" onclick="selectCard(this)">
+        <div class="approach-num" style="background:#D1FAE5;color:#065F46;">2</div>
+        <p class="approach-card-title">Adicionar MCP Tool Listener</p>
+        <p class="approach-card-desc">Atualize APIs existentes adicionando um MCP Tool Listener para cada método.</p>
+        <ul class="pros"><li>Reaproveita código existente</li><li>Menor duplicação</li></ul>
+        <ul class="pros cons"><li>Múltiplos endpoints</li><li>Redefine esquemas JSON</li></ul>
+      </div>
+      <div class="approach-card" style="border-color:var(--blue-dark);background:#EEF2FF;" onclick="selectCard(this)">
+        <div class="approach-num" style="background:var(--blue-dark);color:#fff;">3</div>
+        <p class="approach-card-title">MCP Bridge <span class="tag tag-blue" style="font-size:10px;vertical-align:middle;">Recomendado</span></p>
+        <p class="approach-card-desc">Solução de plataforma via Flex Gateway — sem alterar apps existentes.</p>
+        <ul class="pros"><li>Zero mudança nas APIs</li><li>Governança centralizada</li><li>Escala para múltiplos agentes</li></ul>
+      </div>
+    </div>
+    <div class="steps-card">
+      <p style="font-size:.82rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.85rem;">Por que evitar as soluções 1 e 2?</p>
+      <div class="step-row"><div class="step-dot">✗</div><p class="step-text">Modifique sua implementação existente</p></div>
+      <div class="step-row"><div class="step-dot">✗</div><p class="step-text">Inclua o Conector MCP manualmente em cada app</p></div>
+      <div class="step-row"><div class="step-dot">✗</div><p class="step-text">Adicione um MCP Tool Listener para cada operação</p></div>
+      <div class="step-row"><div class="step-dot">✗</div><p class="step-text">Redefina os esquemas JSON mesmo quando já existem na especificação da API</p></div>
+      <div class="step-row"><div class="step-dot">✗</div><p class="step-text">Teste tudo novamente, obtenha aprovações e passe por todo o ciclo de implantação</p></div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3 -->
+  <div class="slide" id="s2">
+    <p class="section-title">Estado Atual → Arquitetura Agêntica</p>
+    <p class="section-sub">Da integração tradicional para agentes de IA colaborativos</p>
+    <div class="two-col">
+      <div class="state-card state-current">
+        <span class="state-label label-green"><i class="ti ti-current-location" aria-hidden="true"></i> Estado Atual</span>
+        <p style="font-size:.76rem;color:var(--text-muted);margin-bottom:.7rem;">Usuário clica em "Executar Auditoria de Folha de Pagamento"</p>
+        <div class="flow-step">
+          <div class="flow-icon" style="background:#DCFCE7;"><i class="ti ti-user" style="font-size:17px;color:#15803D;" aria-hidden="true"></i></div>
+          <div class="flow-label"><strong>Usuário → Salesforce</strong>Dispara ação manual</div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="flow-icon" style="background:#DBEAFE;"><i class="ti ti-sitemap" style="font-size:17px;color:#1E40AF;" aria-hidden="true"></i></div>
+          <div class="flow-label"><strong>EAPI de Pedidos</strong><span class="tag tag-orange">EXP</span></div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="flow-icon" style="background:#DBEAFE;"><i class="ti ti-settings" style="font-size:17px;color:#1E40AF;" aria-hidden="true"></i></div>
+          <div class="flow-label"><strong>PAPI de Pedidos</strong><span class="tag tag-blue">PRC</span></div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div style="display:flex;gap:6px;">
+          <div style="flex:1;background:#F9FAFB;border-radius:8px;padding:8px;text-align:center;border:1px solid #E5E7EB;">
+            <i class="ti ti-database" style="color:#1E40AF;font-size:15px;" aria-hidden="true"></i>
+            <p style="font-size:.7rem;color:var(--text-mid);margin-top:3px;">SAPI Produto</p>
+          </div>
+          <div style="flex:1;background:#F9FAFB;border-radius:8px;padding:8px;text-align:center;border:1px solid #E5E7EB;">
+            <i class="ti ti-database" style="color:#1E40AF;font-size:15px;" aria-hidden="true"></i>
+            <p style="font-size:.7rem;color:var(--text-mid);margin-top:3px;">SAPI Pedido</p>
+          </div>
+          <div style="flex:1;background:#F9FAFB;border-radius:8px;padding:8px;text-align:center;border:1px solid #E5E7EB;">
+            <i class="ti ti-mail" style="color:#92400E;font-size:15px;" aria-hidden="true"></i>
+            <p style="font-size:.7rem;color:var(--text-mid);margin-top:3px;">SAPI Email</p>
+          </div>
+        </div>
+      </div>
+      <div class="state-card state-future">
+        <span class="state-label label-blue"><i class="ti ti-rocket" aria-hidden="true"></i> Estado Futuro</span>
+        <div class="layer-row"><div class="layer-dot" style="background:#15803D;"></div><strong style="font-size:.79rem;">Camada Agêntica</strong><span style="margin-left:auto;font-size:.74rem;color:var(--blue-dark);font-weight:600;">MuleAceAcademy.ai</span></div>
+        <div class="layer-row"><div class="layer-dot" style="background:var(--blue-dark);"></div><strong style="font-size:.79rem;">Suporte MuleSoft A2A</strong><span class="tag tag-blue" style="margin-left:auto;font-size:10px;">A2A</span></div>
+        <div class="agent-grid">
+          <div class="agent-card"><div style="font-size:20px;margin-bottom:3px;">🤖</div><p class="agent-name">Agente de Pedidos</p><p class="agent-sub">mgmt</p></div>
+          <div class="agent-card"><div style="font-size:20px;margin-bottom:3px;">🤖</div><p class="agent-name">Agente de Inventário</p><p class="agent-sub">mgmt</p></div>
+          <div class="agent-card" style="grid-column:1/-1;"><div style="font-size:20px;margin-bottom:3px;">🌐</div><p class="agent-name">Agente Público</p><p class="agent-sub">OpenAI &amp; Gemini</p></div>
+        </div>
+        <div class="layer-row" style="margin-top:7px;"><div class="layer-dot" style="background:#F59E0B;"></div><strong style="font-size:.79rem;">Central de Tópicos MCP da MuleSoft</strong></div>
+        <div style="display:flex;gap:6px;margin-top:4px;">
+          <div style="flex:1;background:#fff;border-radius:8px;padding:7px;border:1px solid #E5E7EB;text-align:center;font-size:.73rem;color:var(--text-mid);">SAP</div>
+          <div style="flex:1;background:#fff;border-radius:8px;padding:7px;border:1px solid #E5E7EB;text-align:center;font-size:.73rem;color:var(--text-mid);">Salesforce</div>
+          <div style="flex:1;background:#fff;border-radius:8px;padding:7px;border:1px solid #E5E7EB;text-align:center;font-size:.73rem;color:var(--text-mid);">Email</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4 -->
+  <div class="slide" id="s3">
+    <div class="mcp-label"><i class="ti ti-topology-star" aria-hidden="true"></i> Solução 3: MCP Bridge + API Manager + Flex Gateway</div>
+    <p class="section-title">Solução em Nível de Plataforma</p>
+    <p class="section-sub">Arquitetura completa sem alterar as APIs existentes</p>
+
+    <div class="arch-box">
+      <p class="arch-box-title"><i class="ti ti-user-circle" aria-hidden="true"></i> Cliente MCP</p>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div class="arch-node" style="flex:0 0 auto;max-width:190px;">
+          <i class="ti ti-cloud" aria-hidden="true"></i>
+          <strong>Cliente</strong>
+          <span class="endpoint-pill">http://x.x.x.x:8081/flights</span>
+          <span style="font-size:.7rem;color:var(--text-muted);">Endpoint MCP do Consumidor</span>
+        </div>
+        <span style="font-size:1.2rem;color:#9CA3AF;">→</span>
+        <div style="flex:1;min-width:220px;background:#fff;border-radius:12px;border:1.5px solid #E5E7EB;padding:.85rem;">
+          <p style="font-size:.82rem;font-weight:700;color:var(--blue-dark);margin-bottom:8px;display:flex;align-items:center;gap:5px;"><i class="ti ti-server-2" aria-hidden="true"></i> Flex Gateway</p>
+          <div class="arch-node" style="flex-direction:row;text-align:left;margin-bottom:6px;padding:.5rem .75rem;">
+            <i class="ti ti-plug" aria-hidden="true" style="font-size:16px;"></i>
+            <strong style="font-size:.78rem;">Instância do MCP Bridge</strong>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <div class="arch-node" style="padding:.4rem .6rem;"><i class="ti ti-api" aria-hidden="true" style="font-size:14px;"></i><strong style="font-size:.72rem;">API 1</strong></div>
+            <div class="arch-node" style="padding:.4rem .6rem;"><i class="ti ti-api" aria-hidden="true" style="font-size:14px;"></i><strong style="font-size:.72rem;">API 2</strong></div>
+            <div class="arch-node" style="padding:.4rem .6rem;"><i class="ti ti-api" aria-hidden="true" style="font-size:14px;"></i><strong style="font-size:.72rem;">API 3</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#F0FDF4;border:2px solid var(--green);border-radius:14px;padding:1rem 1.25rem;margin-bottom:12px;">
+      <p style="font-size:.85rem;font-weight:700;color:#15803D;margin-bottom:10px;display:flex;align-items:center;gap:6px;"><i class="ti ti-topology-ring" aria-hidden="true"></i> Endpoints de API de Upstream</p>
+      <div class="upstream-item"><i class="ti ti-database" aria-hidden="true" style="color:var(--text-muted);font-size:15px;"></i><span class="upstream-url">mssql://user:pass@mydb:1433/db</span><span class="upstream-dest">Banco de Dados 1</span></div>
+      <div class="upstream-item"><i class="ti ti-cloud-upload" aria-hidden="true" style="color:var(--text-muted);font-size:15px;"></i><span class="upstream-url">https://myapp.amazonaws.com</span><span class="upstream-dest">Banco de Dados 2</span></div>
+      <div class="upstream-item" style="margin-bottom:0;"><i class="ti ti-world" aria-hidden="true" style="color:var(--text-muted);font-size:15px;"></i><span class="upstream-url">http://www.muleair.com</span><span class="upstream-dest">Aplicação Empresarial</span></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="arch-box">
+        <p class="arch-box-title"><i class="ti ti-components" aria-hidden="true"></i> APIs MuleSoft Existentes</p>
+        <div class="arch-node" style="flex-direction:row;text-align:left;margin-bottom:6px;padding:.5rem .75rem;"><i class="ti ti-package" aria-hidden="true" style="font-size:15px;"></i><span style="font-size:.78rem;"><strong>Produto SAPI</strong> → SAP</span></div>
+        <div class="arch-node" style="flex-direction:row;text-align:left;padding:.5rem .75rem;"><i class="ti ti-shopping-cart" aria-hidden="true" style="font-size:15px;"></i><span style="font-size:.78rem;"><strong>Pedido SAPI</strong> → Salesforce</span></div>
+      </div>
+      <div style="background:var(--purple-light);border:2px solid var(--purple);border-radius:14px;padding:1rem 1.25rem;">
+        <p style="font-size:.85rem;font-weight:700;color:var(--purple);margin-bottom:10px;display:flex;align-items:center;gap:6px;"><i class="ti ti-shield-lock" aria-hidden="true"></i> API Manager</p>
+        <div class="arch-node" style="flex-direction:row;text-align:left;margin-bottom:6px;padding:.5rem .75rem;background:rgba(255,255,255,.7);"><i class="ti ti-lock" aria-hidden="true" style="font-size:15px;color:var(--purple);"></i><span style="font-size:.78rem;">Políticas de segurança</span></div>
+        <div class="arch-node" style="flex-direction:row;text-align:left;padding:.5rem .75rem;background:rgba(255,255,255,.7);"><i class="ti ti-activity" aria-hidden="true" style="font-size:15px;color:var(--purple);"></i><span style="font-size:.78rem;">Monitoramento e rate limiting</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVEGAÇÃO -->
+  <div class="nav-bottom">
+    <button class="nav-btn" id="btn-prev" disabled>
+      <i class="ti ti-arrow-left" aria-hidden="true"></i> Anterior
+    </button>
+    <div class="nav-dots">
+      <button class="nav-dot active" aria-label="Slide 1"></button>
+      <button class="nav-dot" aria-label="Slide 2"></button>
+      <button class="nav-dot" aria-label="Slide 3"></button>
+      <button class="nav-dot" aria-label="Slide 4"></button>
+    </div>
+    <button class="nav-btn" id="btn-next">
+      Próximo <i class="ti ti-arrow-right" aria-hidden="true"></i>
+    </button>
+  </div>
+</div>
+
+<script>
+  var cur = 0;
+  var total = 4;
+
+  var slides = document.querySelectorAll('.slide');
+  var tabs   = document.querySelectorAll('.nav-tab');
+  var dots   = document.querySelectorAll('.nav-dot');
+  var btnPrev = document.getElementById('btn-prev');
+  var btnNext = document.getElementById('btn-next');
+
+  function goTo(n) {
+    cur = n;
+    slides.forEach(function(s, i) { s.classList.toggle('active', i === cur); });
+    tabs.forEach(function(t, i)   { t.classList.toggle('active', i === cur); });
+    dots.forEach(function(d, i)   { d.classList.toggle('active', i === cur); });
+    btnPrev.disabled = cur === 0;
+    btnNext.disabled = cur === total - 1;
+  }
+
+  btnPrev.addEventListener('click', function() { if (cur > 0) goTo(cur - 1); });
+  btnNext.addEventListener('click', function() { if (cur < total - 1) goTo(cur + 1); });
+
+  dots.forEach(function(d, i) { d.addEventListener('click', function() { goTo(i); }); });
+  tabs.forEach(function(t, i) { t.addEventListener('click', function() { goTo(i); }); });
+
+  function selectCard(el) {
+    el.closest('.approach-grid').querySelectorAll('.approach-card').forEach(function(c) {
+      c.style.borderColor = '';
+      c.style.background = '';
+    });
+    el.style.borderColor = 'var(--blue-dark)';
+    el.style.background = '#EEF2FF';
+  }
+</script>
