@@ -8,7 +8,7 @@ Repositório de estudo e compartilhamento para demonstrar, na prática, como exp
 > 📖 [A História do MCP — do isolamento dos AIs ao protocolo universal](https://ricardo-maciel.github.io/MCP---Demo-Clientes-CRUD/historia-do-mcp.html)
 
 > **2️⃣ Depois — mão na massa:**  
-> 🌐 [MCP Bridge & Omni Gateway — Manual Técnico](https://ricardo-maciel.github.io/MCP---Demo-Clientes-CRUD/mcp-bridge-manual.html)
+> 🌐 [MCP Bridge & Omni Gateway — Manual Técnico](https://ricardo-maciel.github.io/MCP---Demo-Clientes-CRUD/implementacao_passo_a_passo_mcp_bridge.html)
 
 ## 🎯 Finalidade do repositório
 
